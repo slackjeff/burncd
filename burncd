@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+#=================HEADER==========================================|
+#AUTOR
+# Jefferson 'Slackjeff' Rocha
+#
+#PROGRAMA
+# BurnCD - Burn CLI Distribuition
+#
+#DESCRIÇÃO
+# BurnCD é um programa para gravar isos, utiliza o growisoifs
+# para fazer está função; Foi criado para ter um sintaxe bem fácil
+# para qualquer pessoa possa gravar sua distribuição favorita em
+# seu DVD.
+# Se precisar de ajudar utiliza o parâmetro -h ou --help
+#
+#=================================================================|
+
+#====================CONFIGURAÇÃO
+# Velocidade em que a media
+# será queimada. Normalmente os DVDs
+# utilizam até 16x. Não use o 'x'.
+SPEED='8'
+
+# Localidade do cd/dvdroom
+LOCAL='/dev/cdroom'
+#===============================
+
+#====================TESTES
+# Se existir barra no final da variável LOCAL
+# faça o corte.
+LOCAL="${LOCAL/%\//}"
+
+# Verificando se growisofs existe no sistema.
+if ! type growisofs &>/dev/null; then
+    echo "Necessita do growisofs instalado em seu sistema."
+    exit  1
+fi
+#==========================
+
+#==========================FUNCOES
+_HELP() {
+  cat <<EOF
+burnd [OPÇÕES]
+
+OPÇÕES
+    -b, --burn
+        Opção para gravar ISO
+
+    -h, --help
+        Exibe está ajuda
+
+EXEMPLOS DE USO
+
+   Supondo que quero gravar a iso da distribuição devuan
+   e ela está localizada no meu home no diretório ISOS/
+   Posso então entrar dentro do diretório ISOS/ ou passar
+   o caminho completo!
+
+   burncd -b /home/USUARIO/ISOS/devuan_ascii_x86_64.iso
+
+   Se caso o burnd está localizado no diretório /usr/bin/
+   ele está global, então posso fazer:
+
+   cd /home/USUARIO/ISOS/; burnd -b devuan_ascii_x86_64.iso
+
+CONFIGURAÇÕES
+   O burncd é feito sob a linguagem Shell Bash, e suas configurações
+   como velocidade de gravação, setar outro dispositivo entre outras
+   configurações você pode alterar no próprio programa internamente!
+   Há uma sessão de configurações logo no cabeçalho do programa que é
+   voltada para isto.
+
+AUTOR
+ Jefferson 'slackjeff' Rocha
+
+BUGS
+ root@slackjeff.com.br
+
+EOF
+}
+
+_BURN() {
+  #Verificando se .iso foi passado no parâmetro.
+  if ! echo "$1" | grep -q ".*\.iso"; then
+      echo "Favor passar o arquivo '.iso', caminho absoluto ou não."
+      echo "Para maiores informações use -h, --help"
+      exit 1
+  fi
+
+  # Iniciando gravação.
+  echo "-----> Iniciando a gravação de: ${1}"
+  echo "-----> Velocidade ${SPEED}..."
+  echo ""
+  growisofs              \
+       -dvd-compat       \
+       -speed="$SPEED"   \
+       -Z "${LOCAL}=${1}"
+
+}
+
+
+#==========================START
+case $1 in
+    -b|--burn)
+          shift # Rebaixa agora =D
+          _BURN "$@" # Chamada função
+    ;;
+    -h|--help)
+         _HELP
+    ;;
+    *)
+         _HELP
+    ;;
+esac
