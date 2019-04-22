@@ -22,13 +22,16 @@
 SPEED='8'
 
 # Localidade do cd/dvdroom
-LOCAL='/dev/cdroom'
+LOCAL='/dev/cdrom'
 #===============================
 
 #====================TESTES
 # Se existir barra no final da variável LOCAL
 # faça o corte.
 LOCAL="${LOCAL/%\//}"
+
+# Se existir, retire o xouX da variavel speed.
+SPEED="${SPEED//[x|X]/}"
 
 # Verificando se growisofs existe no sistema.
 if ! type growisofs &>/dev/null; then
@@ -95,7 +98,6 @@ _BURN() {
        -dvd-compat       \
        -speed="$SPEED"   \
        -Z "${LOCAL}=${1}"
-
 }
 
 
